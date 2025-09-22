@@ -6,14 +6,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -31,11 +32,35 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String googleId;
 
-    private String loginMethod = "LOCAL"; // LOCAL or GOOGLE
+    private String loginMethod = "LOCAL";
 
-    // -----------------------------
-    // UserDetails methods
-    // -----------------------------
+    @Column(length = 1000) // URL can be long
+    private String profileImageUrl;
+
+    // Add these fields to match your database schema
+    @Column(name = "account_non_expired", nullable = false)
+    private Boolean accountNonExpired = true;
+
+    @Column(name = "account_non_locked", nullable = false)
+    private Boolean accountNonLocked = true;
+
+    @Column(name = "credentials_non_expired", nullable = false)
+    private Boolean credentialsNonExpired = true;
+
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled = true;
+
+    @PrePersist
+    public void generateId() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+        if (accountNonExpired == null) accountNonExpired = true;
+        if (accountNonLocked == null) accountNonLocked = true;
+        if (credentialsNonExpired == null) credentialsNonExpired = true;
+        if (enabled == null) enabled = true;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null; // implement roles if needed
@@ -47,22 +72,28 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return accountNonExpired != null ? accountNonExpired : true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return accountNonLocked != null ? accountNonLocked : true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired != null ? credentialsNonExpired : true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return enabled != null ? enabled : true;
+    }
 
-    // -----------------------------
-    // Getters & Setters
-    // -----------------------------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters and Setters
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -87,4 +118,20 @@ public class User implements UserDetails {
 
     public String getLoginMethod() { return loginMethod; }
     public void setLoginMethod(String loginMethod) { this.loginMethod = loginMethod; }
+
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
+    // Setters for boolean fields
+    public Boolean getAccountNonExpired() { return accountNonExpired; }
+    public void setAccountNonExpired(Boolean accountNonExpired) { this.accountNonExpired = accountNonExpired; }
+
+    public Boolean getAccountNonLocked() { return accountNonLocked; }
+    public void setAccountNonLocked(Boolean accountNonLocked) { this.accountNonLocked = accountNonLocked; }
+
+    public Boolean getCredentialsNonExpired() { return credentialsNonExpired; }
+    public void setCredentialsNonExpired(Boolean credentialsNonExpired) { this.credentialsNonExpired = credentialsNonExpired; }
+
+    public Boolean getEnabled() { return enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 }

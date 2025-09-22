@@ -27,18 +27,27 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
         return user;
     }
 
     public User createUser(String email, String password, String firstName, String lastName) {
-        if (userRepository.existsByEmail(email)) throw new RuntimeException("Email already exists");
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already exists");
+        }
+
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setLoginMethod("LOCAL");
+        user.setCreatedAt(LocalDateTime.now());
+
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+
         return userRepository.save(user);
     }
 
@@ -51,8 +60,15 @@ public class UserService implements UserDetailsService {
     }
 
     public User createUserOAuth(User user) {
-        user.setPassword(""); // no password for OAuth users
+        user.setPassword("");
         user.setLoginMethod("GOOGLE");
+        user.setCreatedAt(LocalDateTime.now());
+
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+
         return userRepository.save(user);
     }
 }

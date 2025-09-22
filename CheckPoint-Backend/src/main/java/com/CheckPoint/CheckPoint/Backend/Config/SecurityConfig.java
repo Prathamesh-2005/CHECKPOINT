@@ -42,17 +42,15 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
-                                "/oauth2/**",               // allow OAuth2 endpoints
-                                "/login**"                  // allow login
+                                "/oauth2/**",
+                                "/login**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // enable oauth2 login flow
                 .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl("/api/auth/oauth2/success", true)
                 )
                 .logout(logout -> logout.logoutSuccessUrl("/"))
-                // keep JWT filter for API security
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
