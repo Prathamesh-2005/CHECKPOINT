@@ -34,10 +34,9 @@ public class User implements UserDetails {
 
     private String loginMethod = "LOCAL";
 
-    @Column(length = 1000) // URL can be long
+    @Column(length = 1000)
     private String profileImageUrl;
 
-    // Add these fields to match your database schema
     @Column(name = "account_non_expired", nullable = false)
     private Boolean accountNonExpired = true;
 
@@ -91,7 +90,6 @@ public class User implements UserDetails {
         return enabled != null ? enabled : true;
     }
 
-    // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -122,7 +120,6 @@ public class User implements UserDetails {
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 
-    // Setters for boolean fields
     public Boolean getAccountNonExpired() { return accountNonExpired; }
     public void setAccountNonExpired(Boolean accountNonExpired) { this.accountNonExpired = accountNonExpired; }
 
